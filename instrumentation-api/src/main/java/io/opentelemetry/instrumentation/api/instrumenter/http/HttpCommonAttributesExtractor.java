@@ -87,6 +87,14 @@ public abstract class HttpCommonAttributesExtractor<REQUEST, RESPONSE>
   @Nullable
   protected abstract String method(REQUEST request);
 
+  protected String path(REQUEST request) {
+    return null;
+  }
+
+  protected boolean isWebSocket(REQUEST request) {
+    return false;
+  }
+
   @Nullable
   private String userAgent(REQUEST request) {
     return firstHeaderValue(requestHeader(request, "user-agent"));

@@ -21,6 +21,12 @@ plugins {
 
 dependencyResolutionManagement {
   repositories {
+    maven {
+      url = uri("https://neowu.github.io/maven-repo/")
+      content {
+        includeGroup("core.framework")
+      }
+    }
     mavenCentral()
     mavenLocal()
   }
@@ -123,6 +129,7 @@ include(":instrumentation:aws-sdk:aws-sdk-2.2:testing")
 include(":instrumentation:cassandra:cassandra-3.0:javaagent")
 include(":instrumentation:cassandra:cassandra-4.0:javaagent")
 include(":instrumentation:cdi-testing")
+include(":instrumentation:core-ng:redis:javaagent")
 include(":instrumentation:internal:internal-class-loader:javaagent")
 include(":instrumentation:internal:internal-class-loader:javaagent-integration-tests")
 include(":instrumentation:internal:internal-eclipse-osgi-3.6:javaagent")

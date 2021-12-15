@@ -37,11 +37,21 @@ public final class HttpSpanNameExtractor<REQUEST> implements SpanNameExtractor<R
     if (route != null) {
       return route;
     }
+    String path = attributesExtractor.path(request);
     String method = attributesExtractor.method(request);
-    if (method != null) {
-      return "HTTP " + method;
+    boolean isWebSocket = attributesExtractor.isWebSocket(request);
+
+    if (isWebSocket) {
+      return "WS " + path;
+    }
+    if (isRegularHTTPRequest(path, method)) {
+      return method + ' ' + path;
     }
     return "HTTP request";
+  }
+
+  public boolean isRegularHTTPRequest(String path, String method) {
+    return path != null && method != null;
   }
 
   @Nullable
