@@ -6,14 +6,15 @@
 package io.opentelemetry.instrumentation.okhttp.v3_0;
 
 import io.opentelemetry.instrumentation.api.instrumenter.http.CapturedHttpHeaders;
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttributesExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.http.ext.HttpClientAttributesExtractorEXT;
+import io.opentelemetry.instrumentation.api.instrumenter.http.ext.URLFormatUtils;
 import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 import java.util.List;
 import javax.annotation.Nullable;
 import okhttp3.Request;
 import okhttp3.Response;
 
-final class OkHttpAttributesExtractor extends HttpClientAttributesExtractor<Request, Response> {
+final class OkHttpAttributesExtractor extends HttpClientAttributesExtractorEXT<Request, Response> {
 
   OkHttpAttributesExtractor(CapturedHttpHeaders capturedHttpHeaders) {
     super(capturedHttpHeaders);
@@ -22,6 +23,11 @@ final class OkHttpAttributesExtractor extends HttpClientAttributesExtractor<Requ
   @Override
   protected String method(Request request) {
     return request.method();
+  }
+
+  @Override
+  protected String path(Request request) {
+    return URLFormatUtils.format(request.url().uri().getRawPath());
   }
 
   @Override

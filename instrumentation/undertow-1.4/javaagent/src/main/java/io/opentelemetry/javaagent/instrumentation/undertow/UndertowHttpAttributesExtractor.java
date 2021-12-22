@@ -5,7 +5,8 @@
 
 package io.opentelemetry.javaagent.instrumentation.undertow;
 
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttributesExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.http.ext.HttpServerAttributesExtractorEXT;
+import io.opentelemetry.instrumentation.api.instrumenter.http.ext.URLFormatUtils;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
@@ -15,12 +16,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 public class UndertowHttpAttributesExtractor
-    extends HttpServerAttributesExtractor<HttpServerExchange, HttpServerExchange> {
-  private static final String UUID_PATTERN = "/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-  private static final String UUID_WITHOUT_SLASH_PATTERN = "/[0-9a-f]{24}";
-  private static final String NUMBER_ID_PATTERN = "/\\d+";
-  private static final String ALPH_ID_PATTERN = "/[A-Z_]+";
-  private static final String ID_PLACEHOLDER = "/:id";
+    extends HttpServerAttributesExtractorEXT<HttpServerExchange, HttpServerExchange> {
 
   @Override
   protected String method(HttpServerExchange exchange) {
@@ -29,11 +25,7 @@ public class UndertowHttpAttributesExtractor
 
   @Override
   public String path(HttpServerExchange exchange) {
-    // don't change the order for below code.
-    return exchange.getRequestPath().replaceAll(UUID_PATTERN, ID_PLACEHOLDER)
-        .replaceAll(UUID_WITHOUT_SLASH_PATTERN, ID_PLACEHOLDER)
-        .replaceAll(NUMBER_ID_PATTERN, ID_PLACEHOLDER)
-        .replaceAll(ALPH_ID_PATTERN, ID_PLACEHOLDER);
+    return URLFormatUtils.format(exchange.getRequestPath());
   }
 
   @Override

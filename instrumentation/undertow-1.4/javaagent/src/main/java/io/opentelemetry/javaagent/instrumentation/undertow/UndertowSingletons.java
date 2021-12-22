@@ -11,10 +11,10 @@ import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
 import io.opentelemetry.instrumentation.api.instrumenter.SpanNameExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.SpanStatusExtractor;
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttributesExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerMetrics;
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.http.ext.HttpServerAttributesExtractorEXT;
+import io.opentelemetry.instrumentation.api.instrumenter.http.ext.HttpSpanNameExtractorEXT;
+import io.opentelemetry.instrumentation.api.instrumenter.http.ext.HttpSpanStatusExtractorEXT;
 import io.opentelemetry.instrumentation.api.instrumenter.net.NetServerAttributesExtractor;
 import io.opentelemetry.instrumentation.api.servlet.AppServerBridge;
 import io.opentelemetry.instrumentation.api.servlet.ServerSpanNaming;
@@ -27,12 +27,12 @@ public final class UndertowSingletons {
   private static final Instrumenter<HttpServerExchange, HttpServerExchange> INSTRUMENTER;
 
   static {
-    HttpServerAttributesExtractor<HttpServerExchange, HttpServerExchange> httpAttributesExtractor =
+    HttpServerAttributesExtractorEXT<HttpServerExchange, HttpServerExchange> httpAttributesExtractor =
         new UndertowHttpAttributesExtractor();
     SpanNameExtractor<HttpServerExchange> spanNameExtractor =
-        HttpSpanNameExtractor.create(httpAttributesExtractor);
+        HttpSpanNameExtractorEXT.create(httpAttributesExtractor);
     SpanStatusExtractor<HttpServerExchange, HttpServerExchange> spanStatusExtractor =
-        HttpSpanStatusExtractor.create(httpAttributesExtractor);
+        HttpSpanStatusExtractorEXT.create(httpAttributesExtractor);
     NetServerAttributesExtractor<HttpServerExchange, HttpServerExchange> netAttributesExtractor =
         new UndertowNetAttributesExtractor();
 

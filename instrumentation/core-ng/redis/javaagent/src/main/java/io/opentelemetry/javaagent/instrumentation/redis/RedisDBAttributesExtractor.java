@@ -23,7 +23,16 @@ final class RedisDBAttributesExtractor extends DbAttributesExtractor<RedisReques
 
   @Override
   protected String name(RedisRequest request) {
-    return request.type.name();
+    String name = "";
+    switch (request.type) {
+      case REDIS:
+        name = "redis::get: " + request.key;
+        break;
+      case REDIS_CACHE:
+        name = "cache::get: " + request.key;
+        break;
+    }
+    return name;
   }
 
   @Override

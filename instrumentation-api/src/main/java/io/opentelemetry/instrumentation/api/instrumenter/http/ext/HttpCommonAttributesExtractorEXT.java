@@ -3,15 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package io.opentelemetry.instrumentation.api.instrumenter.http;
+package io.opentelemetry.instrumentation.api.instrumenter.http.ext;
 
-import static io.opentelemetry.instrumentation.api.instrumenter.http.HttpHeaderAttributes.requestAttributeKey;
-import static io.opentelemetry.instrumentation.api.instrumenter.http.HttpHeaderAttributes.responseAttributeKey;
+import static io.opentelemetry.instrumentation.api.instrumenter.http.ext.HttpHeaderAttributesEXT.requestAttributeKey;
+import static io.opentelemetry.instrumentation.api.instrumenter.http.ext.HttpHeaderAttributesEXT.responseAttributeKey;
 
 import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.api.instrumenter.AttributesExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
+import io.opentelemetry.instrumentation.api.instrumenter.http.CapturedHttpHeaders;
 import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -21,12 +22,12 @@ import javax.annotation.Nullable;
  * href="https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/http.md#common-attributes">HTTP
  * attributes</a> that are common to client and server instrumentations.
  */
-public abstract class HttpCommonAttributesExtractor<REQUEST, RESPONSE>
+public abstract class HttpCommonAttributesExtractorEXT<REQUEST, RESPONSE>
     implements AttributesExtractor<REQUEST, RESPONSE> {
 
   private final CapturedHttpHeaders capturedHttpHeaders;
 
-  HttpCommonAttributesExtractor(CapturedHttpHeaders capturedHttpHeaders) {
+  HttpCommonAttributesExtractorEXT(CapturedHttpHeaders capturedHttpHeaders) {
     this.capturedHttpHeaders = capturedHttpHeaders;
   }
 
@@ -86,6 +87,14 @@ public abstract class HttpCommonAttributesExtractor<REQUEST, RESPONSE>
 
   @Nullable
   protected abstract String method(REQUEST request);
+
+  protected String path(REQUEST request) {
+    return null;
+  }
+
+  protected boolean isWebSocket(REQUEST request) {
+    return false;
+  }
 
   @Nullable
   private String userAgent(REQUEST request) {

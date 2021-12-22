@@ -13,8 +13,8 @@ import io.opentelemetry.instrumentation.api.instrumenter.AttributesExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
 import io.opentelemetry.instrumentation.api.instrumenter.http.CapturedHttpHeaders;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientMetrics;
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.http.ext.HttpSpanNameExtractorEXT;
+import io.opentelemetry.instrumentation.api.instrumenter.http.ext.HttpSpanStatusExtractorEXT;
 import io.opentelemetry.instrumentation.okhttp.v3_0.internal.OkHttpNetAttributesExtractor;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,8 +66,8 @@ public final class OkHttpTracingBuilder {
         Instrumenter.<Request, Response>builder(
                 openTelemetry,
                 INSTRUMENTATION_NAME,
-                HttpSpanNameExtractor.create(httpAttributesExtractor))
-            .setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesExtractor))
+                HttpSpanNameExtractorEXT.create(httpAttributesExtractor))
+            .setSpanStatusExtractor(HttpSpanStatusExtractorEXT.create(httpAttributesExtractor))
             .addAttributesExtractor(httpAttributesExtractor)
             .addAttributesExtractor(netAttributesExtractor)
             .addAttributesExtractors(additionalExtractors)
