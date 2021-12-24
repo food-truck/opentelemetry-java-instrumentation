@@ -42,7 +42,7 @@ public final class HttpSpanNameExtractorEXT<REQUEST> implements SpanNameExtracto
     boolean isWebSocket = attributesExtractor.isWebSocket(request);
 
     if (isWebSocket) {
-      return "ws: " + path + ":open";
+      return "ws:" + path + ":open";
     }
     if (isRegularHTTPRequest(path, method)) {
       return method + ' ' + path;

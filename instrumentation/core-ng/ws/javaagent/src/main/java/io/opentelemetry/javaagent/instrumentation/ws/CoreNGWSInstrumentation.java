@@ -1,7 +1,6 @@
 package io.opentelemetry.javaagent.instrumentation.ws;
 
-import static io.opentelemetry.javaagent.instrumentation.api.Java8BytecodeBridge.currentContext;
-import static io.opentelemetry.javaagent.instrumentation.ws.CoreNGWSSingletons.instrumenter;
+import static io.opentelemetry.javaagent.instrumentation.ws.CoreNGWSSpanSingletons.instrumenter;
 import static net.bytebuddy.matcher.ElementMatchers.is;
 import static net.bytebuddy.matcher.ElementMatchers.isMethod;
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -10,10 +9,15 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
+import io.opentelemetry.instrumentation.api.annotation.support.async.AsyncOperationEndSupport;
+import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
+import io.opentelemetry.javaagent.instrumentation.api.Java8BytecodeBridge;
+import java.lang.reflect.Method;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.type.TypeDescription;
+import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatcher;
 
 public class CoreNGWSInstrumentation implements TypeInstrumentation {
@@ -34,7 +38,7 @@ public class CoreNGWSInstrumentation implements TypeInstrumentation {
             .and(takesArgument(2, named("io.undertow.websockets.core.BufferedTextMessage")))
             .and(takesArgument(3, named("core.framework.internal.web.websocket.ChannelImpl")))
             .and(takesArgument(4, named("core.framework.internal.log.ActionLog"))),
-        this.getClass().getName() + "$AdviceOnMessage"
+        this.getClass().getName() + "$OnMessageAdvice"
     );
 
     transformer.applyAdviceToMethod(
@@ -46,63 +50,97 @@ public class CoreNGWSInstrumentation implements TypeInstrumentation {
             .and(takesArgument(2, named("io.undertow.websockets.core.WebSocketChannel")))
             .and(takesArgument(3, named("core.framework.internal.web.websocket.ChannelImpl")))
             .and(takesArgument(4, named("core.framework.internal.log.ActionLog"))),
-        this.getClass().getName() + "$AdviceOnClose"
+        this.getClass().getName() + "$OnCloseAdvice"
     );
   }
 
-  public static class AdviceOnMessage {
+  @SuppressWarnings("unused")
+  public static class OnMessageAdvice {
+
     @Advice.OnMethodEnter(suppress = Throwable.class)
     public static void onEnter(
         @Advice.Argument(0) String action,
-        @Advice.Local("otelContext") Context context) {
-      WSRequest request = new WSRequestBuilder(action, WSRequest.Type.ON_MESSAGE).build();
-      Context parentContext = currentContext();
-      if (!instrumenter().shouldStart(parentContext, request)) {
-        return;
+        @Advice.Origin Method originMethod,
+        @Advice.Local("otelMethod") Method method,
+        @Advice.Local("otelOperationEndSupport")
+            AsyncOperationEndSupport<MethodRequest, Object> operationEndSupport,
+        @Advice.Local("otelContext") Context context,
+        @Advice.Local("otelScope") Scope scope) {
+      // Every usage of @Advice.Origin Method is replaced with a call to Class.getMethod, copy it
+      // to local variable so that there would be only one call to Class.getMethod.
+      method = originMethod;
+      MethodRequest methodRequest= new MethodRequest(method, MethodRequest.Type.ON_MESSAGE, action);
+      Instrumenter<MethodRequest, Object> instrumenter = instrumenter();
+      Context current = Java8BytecodeBridge.currentContext();
+
+      if (instrumenter.shouldStart(current, methodRequest)) {
+        context = instrumenter.start(current, methodRequest);
+        scope = context.makeCurrent();
+        operationEndSupport =
+            AsyncOperationEndSupport.create(instrumenter, Object.class, method.getReturnType());
       }
-      context = instrumenter().start(parentContext, request);
-      Scope scope = context.makeCurrent();
     }
 
     @Advice.OnMethodExit(onThrowable = Throwable.class, suppress = Throwable.class)
     public static void stopSpan(
-        @Advice.Argument(0) String action,
-        @Advice.Thrown Throwable throwable,
+        @Advice.Local("otelMethod") Method method,
+        @Advice.Local("otelRequest") MethodRequest methodRequest,
+        @Advice.Local("otelOperationEndSupport")
+            AsyncOperationEndSupport<MethodRequest, Object> operationEndSupport,
         @Advice.Local("otelContext") Context context,
-        @Advice.Local("otelScope") Scope scope) {
-      if (scope != null) {
-        scope.close();
+        @Advice.Local("otelScope") Scope scope,
+        @Advice.Return(typing = Assigner.Typing.DYNAMIC, readOnly = false) Object returnValue,
+        @Advice.Thrown Throwable throwable) {
+      if (scope == null) {
+        return;
       }
-      WSRequest request = new WSRequestBuilder(action, WSRequest.Type.ON_MESSAGE).build();
-      instrumenter().end(context, request, null, null);
+      scope.close();
+      returnValue = operationEndSupport.asyncEnd(context, methodRequest, returnValue, throwable);
     }
   }
 
-  public static class AdviceOnClose {
+  @SuppressWarnings("unused")
+  public static class OnCloseAdvice {
+
     @Advice.OnMethodEnter(suppress = Throwable.class)
     public static void onEnter(
         @Advice.Argument(0) String action,
-        @Advice.Local("otelContext") Context context) {
-      WSRequest request = new WSRequestBuilder(action, WSRequest.Type.ON_CLOSE).build();
-      Context parentContext = currentContext();
-      if (!instrumenter().shouldStart(parentContext, request)) {
-        return;
+        @Advice.Origin Method originMethod,
+        @Advice.Local("otelMethod") Method method,
+        @Advice.Local("otelOperationEndSupport")
+            AsyncOperationEndSupport<MethodRequest, Object> operationEndSupport,
+        @Advice.Local("otelContext") Context context,
+        @Advice.Local("otelScope") Scope scope) {
+      // Every usage of @Advice.Origin Method is replaced with a call to Class.getMethod, copy it
+      // to local variable so that there would be only one call to Class.getMethod.
+      method = originMethod;
+      MethodRequest methodRequest= new MethodRequest(method, MethodRequest.Type.ON_MESSAGE, action);
+      Instrumenter<MethodRequest, Object> instrumenter = instrumenter();
+      Context current = Java8BytecodeBridge.currentContext();
+
+      if (instrumenter.shouldStart(current, methodRequest)) {
+        context = instrumenter.start(current, methodRequest);
+        scope = context.makeCurrent();
+        operationEndSupport =
+            AsyncOperationEndSupport.create(instrumenter, Object.class, method.getReturnType());
       }
-      context = instrumenter().start(parentContext, request);
-      Scope scope = context.makeCurrent();
     }
 
     @Advice.OnMethodExit(onThrowable = Throwable.class, suppress = Throwable.class)
     public static void stopSpan(
-        @Advice.Argument(0) String action,
-        @Advice.Thrown Throwable throwable,
+        @Advice.Local("otelMethod") Method method,
+        @Advice.Local("otelRequest") MethodRequest methodRequest,
+        @Advice.Local("otelOperationEndSupport")
+            AsyncOperationEndSupport<MethodRequest, Object> operationEndSupport,
         @Advice.Local("otelContext") Context context,
-        @Advice.Local("otelScope") Scope scope) {
-      if (scope != null) {
-        scope.close();
+        @Advice.Local("otelScope") Scope scope,
+        @Advice.Return(typing = Assigner.Typing.DYNAMIC, readOnly = false) Object returnValue,
+        @Advice.Thrown Throwable throwable) {
+      if (scope == null) {
+        return;
       }
-      WSRequest request = new WSRequestBuilder(action, WSRequest.Type.ON_CLOSE).build();
-      instrumenter().end(context, request, null, throwable);
+      scope.close();
+      returnValue = operationEndSupport.asyncEnd(context, methodRequest, returnValue, throwable);
     }
   }
 }

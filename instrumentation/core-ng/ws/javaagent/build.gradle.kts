@@ -9,6 +9,6 @@ muzzle {
 }
 
 dependencies {
-  library("io.undertow:undertow-core:2.2.9.Final")
+  compileOnly(project(":instrumentation-api-annotation-support"))
   implementation("core.framework:core-ng:7.6.15")
 }
