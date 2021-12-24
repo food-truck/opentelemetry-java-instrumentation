@@ -114,7 +114,7 @@ public class CoreNGWSInstrumentation implements TypeInstrumentation {
       // Every usage of @Advice.Origin Method is replaced with a call to Class.getMethod, copy it
       // to local variable so that there would be only one call to Class.getMethod.
       method = originMethod;
-      MethodRequest methodRequest= new MethodRequest(method, MethodRequest.Type.ON_MESSAGE, action);
+      MethodRequest methodRequest= new MethodRequest(method, MethodRequest.Type.ON_CLOSE, action);
       Instrumenter<MethodRequest, Object> instrumenter = instrumenter();
       Context current = Java8BytecodeBridge.currentContext();
 
