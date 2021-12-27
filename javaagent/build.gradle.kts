@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.InventoryMarkdownReportRenderer
+import groovy.lang.GroovySystem.getVersion
 
 plugins {
   id("com.github.jk1.dependency-license-report")
@@ -8,6 +9,31 @@ plugins {
   id("otel.java-conventions")
   id("otel.publish-conventions")
   id("io.opentelemetry.instrumentation.javaagent-shadowing")
+  id("maven-publish")
+  id("java")
+}
+// export MAVEN_ACCESS_TOKEN={{MAVEN_ACCESS_TOKEN}}
+// ./gradlew :javaagent:publishMavenJavaPublicationToMavenRepository
+publishing {
+  publications {
+    create<MavenPublication>("mavenJava") {
+      artifactId = "opentelemetry-javaagent"
+      groupId = "com.wonder"
+      version = getVersion()
+
+      from(components["java"])
+    }
+  }
+
+  repositories {
+    maven {
+      url = uri("https://pkgs.dev.azure.com/foodtruckinc/Wonder/_packaging/maven-local/maven/v1")
+      credentials {
+        username = "foodtruckinc"
+        password = System.getenv("MAVEN_ACCESS_TOKEN")
+      }
+    }
+  }
 }
 
 description = "OpenTelemetry Javaagent"
