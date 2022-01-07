@@ -1,0 +1,26 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - release
+  paths:
+    include:
+      - "wonder-build-pipeline/"
+
+pr: none
+
+variables:
+  - group: open-telemetry-ci-creds
+
+stages:
+  - stage: 'build_package'
+    displayName: 'Build Package'
+    dependsOn: []
+    pool: "FTIDevAKSPool"
+    jobs:
+    - job: build_package
+      steps:
+      - script: ./gradlew :javaagent:publishMavenJavaPublicationToMavenRepository
+        env:
+          MAVEN_ACCESS_TOKEN: $(maven-package-token)
+        displayName: 'Build Package'
