@@ -5,7 +5,7 @@ trigger:
       - release
   paths:
     include:
-      - "wonder-build-pipeline/"
+      - "wonder-build-pipelines/"
 
 pr: none
 
