@@ -5,7 +5,7 @@ trigger:
       - release
   paths:
     include:
-      - "wonder-build-pipelines/"
+      - "version.gradle.kts"
 
 pr: none
 
