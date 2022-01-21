@@ -5,15 +5,15 @@
 
 package io.opentelemetry.javaagent.instrumentation.myfaces;
 
-import static io.opentelemetry.instrumentation.api.servlet.ServerSpanNaming.Source.CONTROLLER;
+import static io.opentelemetry.instrumentation.api.server.ServerSpanNaming.Source.CONTROLLER;
 import static io.opentelemetry.javaagent.instrumentation.api.Java8BytecodeBridge.currentContext;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
-import io.opentelemetry.instrumentation.api.servlet.ServerSpanNaming;
-import io.opentelemetry.instrumentation.jsf.JsfServerSpanNaming;
+import io.opentelemetry.instrumentation.api.server.ServerSpanNaming;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
+import io.opentelemetry.javaagent.instrumentation.jsf.JsfServerSpanNaming;
 import javax.faces.context.FacesContext;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.type.TypeDescription;

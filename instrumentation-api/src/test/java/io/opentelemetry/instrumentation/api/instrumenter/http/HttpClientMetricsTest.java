@@ -5,8 +5,8 @@
 
 package io.opentelemetry.instrumentation.api.instrumenter.http;
 
+import static io.opentelemetry.sdk.testing.assertj.MetricAssertions.assertThat;
 import static io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.attributeEntry;
-import static io.opentelemetry.sdk.testing.assertj.metrics.MetricAssertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import io.opentelemetry.api.common.Attributes;
@@ -27,7 +27,7 @@ class HttpClientMetricsTest {
 
   @Test
   void collectsMetrics() {
-    InMemoryMetricReader metricReader = new InMemoryMetricReader();
+    InMemoryMetricReader metricReader = InMemoryMetricReader.create();
     SdkMeterProvider meterProvider =
         SdkMeterProvider.builder().registerMetricReader(metricReader).build();
 
@@ -93,6 +93,7 @@ class HttpClientMetricsTest {
                       metric ->
                           assertThat(metric)
                               .hasName("http.client.duration")
+                              .hasUnit("ms")
                               .hasDoubleHistogram()
                               .points()
                               .satisfiesExactly(

@@ -20,6 +20,7 @@ import io.opentelemetry.context.propagation.TextMapSetter;
 import io.opentelemetry.instrumentation.api.InstrumentationVersion;
 import io.opentelemetry.instrumentation.api.internal.ContextPropagationDebug;
 import io.opentelemetry.instrumentation.api.internal.SupportabilityMetrics;
+import io.opentelemetry.instrumentation.api.server.ServerSpan;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.concurrent.ExecutionException;
@@ -44,7 +45,10 @@ import javax.annotation.Nullable;
  * <p>When constructing {@link Span}s tracers should set all attributes available during
  * construction on a {@link SpanBuilder} instead of a {@link Span}. This way {@code SpanProcessor}s
  * are able to see those attributes in the {@code onStart()} method and can freely read/modify them.
+ *
+ * @deprecated Use {@link io.opentelemetry.instrumentation.api.instrumenter.Instrumenter} instead.
  */
+@Deprecated
 public abstract class BaseTracer {
   private static final SupportabilityMetrics supportability = SupportabilityMetrics.instance();
 

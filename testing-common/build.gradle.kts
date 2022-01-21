@@ -38,6 +38,7 @@ dependencies {
   api("io.opentelemetry:opentelemetry-sdk-testing")
   api("io.opentelemetry:opentelemetry-sdk-metrics")
   api("io.opentelemetry:opentelemetry-sdk-metrics-testing")
+  api("io.opentelemetry:opentelemetry-sdk-logs")
   api(project(":instrumentation-api"))
 
   api("org.assertj:assertj-core")
@@ -45,11 +46,12 @@ dependencies {
   // Needs to be api dependency due to Spock restriction.
   api("org.awaitility:awaitility")
 
+  api("com.google.guava:guava")
+
   compileOnly(project(path = ":testing:armeria-shaded-for-testing", configuration = "shadow"))
 
   implementation("io.opentelemetry.proto:opentelemetry-proto")
 
-  implementation("com.google.guava:guava")
   implementation("net.bytebuddy:byte-buddy")
   implementation("org.slf4j:slf4j-api")
   implementation("ch.qos.logback:logback-classic")

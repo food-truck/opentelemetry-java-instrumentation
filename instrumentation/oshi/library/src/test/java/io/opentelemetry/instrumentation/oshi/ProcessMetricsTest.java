@@ -5,7 +5,7 @@
 
 package io.opentelemetry.instrumentation.oshi;
 
-import static io.opentelemetry.sdk.testing.assertj.metrics.MetricAssertions.assertThat;
+import static io.opentelemetry.sdk.testing.assertj.MetricAssertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ public class ProcessMetricsTest extends AbstractMetricsTest {
             metric
                 .hasName("runtime.java.memory")
                 .hasUnit("bytes")
-                .hasLongGauge()
+                .hasLongSum()
                 .points()
                 .anySatisfy(point -> assertThat(point.getValue()).isPositive()),
         metric ->

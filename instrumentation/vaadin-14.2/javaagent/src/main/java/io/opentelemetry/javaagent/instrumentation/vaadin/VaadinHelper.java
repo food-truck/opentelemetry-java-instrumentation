@@ -12,8 +12,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Location;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
-import io.opentelemetry.instrumentation.api.servlet.ServerSpanNaming;
-import io.opentelemetry.instrumentation.api.servlet.ServletContextPath;
+import io.opentelemetry.instrumentation.api.server.ServerSpanNaming;
+import io.opentelemetry.javaagent.bootstrap.servlet.ServletContextPath;
 import javax.annotation.Nullable;
 
 public class VaadinHelper {

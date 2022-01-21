@@ -4,6 +4,8 @@ plugins {
   id("com.github.johnrengelman.shadow")
 }
 
+// NOTE: any modifications below should also be made in
+//       io.opentelemetry.instrumentation.muzzle-check.gradle.kts
 tasks.withType<ShadowJar>().configureEach {
   mergeServiceFiles()
   // Merge any AWS SDK service files that may be present (too bad they didn't just use normal
@@ -26,11 +28,14 @@ tasks.withType<ShadowJar>().configureEach {
   relocate("io.opentelemetry.context", "io.opentelemetry.javaagent.shaded.io.opentelemetry.context")
 
   // relocate(the OpenTelemetry extensions that are used by instrumentation modules)
-  // these extensions live in the AgentClassLoader, and are injected into the user"s class loader
+  // these extensions live in the AgentClassLoader, and are injected into the user's class loader
   // by the instrumentation modules that use them
   relocate("io.opentelemetry.extension.aws", "io.opentelemetry.javaagent.shaded.io.opentelemetry.extension.aws")
   relocate("io.opentelemetry.extension.kotlin", "io.opentelemetry.javaagent.shaded.io.opentelemetry.extension.kotlin")
 
   // this is for instrumentation on opentelemetry-api itself
   relocate("application.io.opentelemetry", "io.opentelemetry")
+
+  // this is for instrumentation on java.util.logging (since java.util.logging itself is shaded above)
+  relocate("application.java.util.logging", "java.util.logging")
 }

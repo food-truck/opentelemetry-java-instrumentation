@@ -5,8 +5,8 @@
 
 package io.opentelemetry.instrumentation.api.instrumenter.http;
 
+import static io.opentelemetry.sdk.testing.assertj.MetricAssertions.assertThat;
 import static io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.attributeEntry;
-import static io.opentelemetry.sdk.testing.assertj.metrics.MetricAssertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import io.opentelemetry.api.common.Attributes;
@@ -132,6 +132,7 @@ class HttpServerMetricsTest {
                       metric ->
                           assertThat(metric)
                               .hasName("http.server.duration")
+                              .hasUnit("ms")
                               .hasDoubleHistogram()
                               .points()
                               .satisfiesExactly(
@@ -142,7 +143,6 @@ class HttpServerMetricsTest {
                                         .containsOnly(
                                             attributeEntry("http.scheme", "https"),
                                             attributeEntry("http.host", "host"),
-                                            attributeEntry("http.target", "/"),
                                             attributeEntry("http.method", "GET"),
                                             attributeEntry("http.status_code", 200),
                                             attributeEntry("http.flavor", "2.0"));

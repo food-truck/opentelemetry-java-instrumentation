@@ -11,7 +11,7 @@ import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerMetrics;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
-import io.opentelemetry.instrumentation.api.servlet.ServerSpanNaming;
+import io.opentelemetry.instrumentation.api.server.ServerSpanNaming;
 import io.opentelemetry.javaagent.instrumentation.netty.common.HttpRequestAndChannel;
 import io.opentelemetry.javaagent.instrumentation.netty.common.NettyErrorHolder;
 
@@ -20,7 +20,7 @@ public final class NettyServerInstrumenterFactory {
   public static Instrumenter<HttpRequestAndChannel, HttpResponse> create(
       String instrumentationName) {
 
-    final NettyHttpServerAttributesExtractor httpAttributesExtractor =
+    NettyHttpServerAttributesExtractor httpAttributesExtractor =
         new NettyHttpServerAttributesExtractor();
 
     return Instrumenter.<HttpRequestAndChannel, HttpResponse>builder(
@@ -31,12 +31,8 @@ public final class NettyServerInstrumenterFactory {
         .addAttributesExtractor(httpAttributesExtractor)
         .addAttributesExtractor(new NettyNetServerAttributesExtractor())
         .addRequestMetrics(HttpServerMetrics.get())
-        .addContextCustomizer(
-            (context, request, attributes) -> {
-              context = NettyErrorHolder.init(context);
-              // netty is not exactly a "container", but it's the best match out of these
-              return ServerSpanNaming.init(context, ServerSpanNaming.Source.CONTAINER);
-            })
+        .addContextCustomizer((context, request, attributes) -> NettyErrorHolder.init(context))
+        .addContextCustomizer(ServerSpanNaming.get())
         .newServerInstrumenter(HttpRequestHeadersGetter.INSTANCE);
   }
 

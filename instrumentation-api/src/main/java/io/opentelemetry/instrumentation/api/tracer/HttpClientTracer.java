@@ -15,6 +15,7 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapSetter;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpStatusConverter;
 import io.opentelemetry.instrumentation.api.tracer.net.NetPeerAttributes;
 import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 import java.net.URI;
@@ -24,6 +25,14 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Base class for implementing Tracers for HTTP clients.
+ *
+ * @deprecated Use {@link io.opentelemetry.instrumentation.api.instrumenter.Instrumenter} and
+ *     {@linkplain io.opentelemetry.instrumentation.api.instrumenter.http the HTTP semantic
+ *     convention utilities package} instead.
+ */
+@Deprecated
 public abstract class HttpClientTracer<REQUEST, CARRIER, RESPONSE> extends BaseTracer {
 
   private static final Logger logger = LoggerFactory.getLogger(HttpClientTracer.class);
@@ -184,7 +193,7 @@ public abstract class HttpClientTracer<REQUEST, CARRIER, RESPONSE> extends BaseT
       URI url = url(request);
       if (url != null) {
         netPeerAttributes.setNetPeer(setter, url.getHost(), null, url.getPort());
-        final URI sanitized;
+        URI sanitized;
         if (url.getUserInfo() != null) {
           sanitized =
               new URI(

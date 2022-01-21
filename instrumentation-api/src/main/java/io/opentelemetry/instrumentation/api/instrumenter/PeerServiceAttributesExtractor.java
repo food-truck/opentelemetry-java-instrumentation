@@ -5,6 +5,8 @@
 
 package io.opentelemetry.instrumentation.api.instrumenter;
 
+import static java.util.Collections.emptyMap;
+
 import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.instrumentation.api.config.Config;
 import io.opentelemetry.instrumentation.api.instrumenter.net.NetClientAttributesExtractor;
@@ -24,7 +26,7 @@ import javax.annotation.Nullable;
 public final class PeerServiceAttributesExtractor<REQUEST, RESPONSE>
     implements AttributesExtractor<REQUEST, RESPONSE> {
   private static final Map<String, String> JAVAAGENT_PEER_SERVICE_MAPPING =
-      Config.get().getMap("otel.instrumentation.common.peer-service-mapping");
+      Config.get().getMap("otel.instrumentation.common.peer-service-mapping", emptyMap());
 
   private final Map<String, String> peerServiceMapping;
   private final NetClientAttributesExtractor<REQUEST, RESPONSE> netClientAttributesExtractor;
@@ -56,6 +58,12 @@ public final class PeerServiceAttributesExtractor<REQUEST, RESPONSE>
       REQUEST request,
       @Nullable RESPONSE response,
       @Nullable Throwable error) {
+
+    if (peerServiceMapping.isEmpty()) {
+      // optimization for common case
+      return;
+    }
+
     String peerName = netClientAttributesExtractor.peerName(request, response);
     String peerService = mapToPeerService(peerName);
     if (peerService == null) {
@@ -67,6 +75,7 @@ public final class PeerServiceAttributesExtractor<REQUEST, RESPONSE>
     }
   }
 
+  @Nullable
   private String mapToPeerService(String endpoint) {
     if (endpoint == null) {
       return null;

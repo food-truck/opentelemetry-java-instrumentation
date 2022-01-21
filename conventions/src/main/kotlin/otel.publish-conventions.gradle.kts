@@ -30,8 +30,10 @@ publishing {
           throw GradleException("groupId is not set for this project or its parent ${project.parent}")
         }
 
-        pom.description.set(project.description
-          ?: "Instrumentation of Java libraries using OpenTelemetry.")
+        pom.description.set(
+          project.description
+            ?: "Instrumentation of Java libraries using OpenTelemetry."
+        )
       }
 
       pom {
