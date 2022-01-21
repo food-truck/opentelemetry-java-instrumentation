@@ -7,7 +7,7 @@ package io.opentelemetry.instrumentation.api.instrumenter.http.ext;
 
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.instrumentation.api.instrumenter.SpanStatusExtractor;
-import io.opentelemetry.instrumentation.api.tracer.HttpStatusConverter;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpStatusConverter;
 import javax.annotation.Nullable;
 
 /**
