@@ -10,7 +10,7 @@ jobs:
   buildLinux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -36,7 +36,7 @@ jobs:
       - name: Support longpaths
         run: git config --system core.longpaths true
 
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
