@@ -13,7 +13,7 @@ jobs:
   publishLinux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.0.2
         with:
           fetch-depth: 0
 
@@ -48,7 +48,7 @@ jobs:
       - name: Support longpaths
         run: git config --system core.longpaths true
 
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.0.2
         with:
           fetch-depth: 0
 
@@ -84,7 +84,7 @@ jobs:
       # You can get conclusion by env (env.WORKFLOW_CONCLUSION)
       - uses: technote-space/workflow-conclusion-action@v2.2
 
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.0.2
         with:
           fetch-depth: 0
 
